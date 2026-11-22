@@ -73,6 +73,12 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          # The action's default is "tools platform-tools", but Google removed
+          # the legacy `tools` package from the SDK repository, so sdkmanager
+          # exits 1 with "Failed to find package 'tools'". Ask only for the
+          # packages that still exist.
+          packages: platform-tools
 
       - name: Set up Gradle cache
         uses: gradle/actions/setup-gradle@v4

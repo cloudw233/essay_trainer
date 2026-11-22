@@ -14,6 +14,23 @@
 - 历史页按时间倒序展示报告，左滑删除报告。
 - 主题跟随系统，可覆盖为浅色或深色。有动态取色时用系统壁纸色，否则用种子色 `#3F5D50`。
 
+## 下载安装
+
+正式发行版在 [Releases](https://github.com/cloudw233/essay_trainer/releases)：arm64-v8a 的
+签名 APK 加一份 `SHA256SUMS`。手机上打开 APK，允许“安装未知应用”后安装；覆盖安装
+会保留草稿、报告和 Key。
+
+下载后建议先校验：
+
+```bash
+sha256sum -c SHA256SUMS
+apksigner verify --print-certs essay_trainer-0.4.0-arm64-v8a.apk
+```
+
+签名证书 SHA-256 应为
+`bd30066f4f899289536cc73de68780a25a534447e646e6eac8686d9350072c1f`。发版流程见
+[发布签名发行版](docs/releasing.md)。
+
 ## 环境
 
 - Flutter 3.35.6 / Dart 3.9.2
@@ -170,6 +187,10 @@ CI 在 `.github/workflows/ci.yml`：
 - `android-debug`：非 PR 时安装 NDK 27，把 Gradle 镜像换成官方地址，构建 `android-arm64` debug APK，上传 artifact，保留 7 天
 - 不需要 DeepSeek Key
 
+发布走 `.github/workflows/release.yml`：推送 `v*.*.*` tag 后校验 tag 与 `pubspec.yaml`
+版本、跑同一套质量检查、用仓库 secret 里的发布密钥构建 arm64 release APK、`apksigner`
+验签、生成 `SHA256SUMS` 并创建 GitHub Release。细节见 [发布签名发行版](docs/releasing.md)。
+
 这套 workflow 还没有在 GitHub 托管 runner 上实际跑过。提交前检查见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 阶段报告和模块说明在 `docs/`：[第一阶段报告](docs/phase1-report.md)、[第二阶段报告](docs/phase2-report.md)、[第三阶段报告](docs/phase3-report.md)、[AI 命题模块](docs/ai_prompt_module.md)、[仓库自动化](docs/repo-automation.md)。
@@ -183,7 +204,7 @@ CI 在 `.github/workflows/ci.yml`：
 - 等待页是四个阶段文字、已等待时间和不定进度条，不是 token 流。批改请求固定 `stream: false`。
 - 客户端只校验返回结构，不判断评分是否合理。语文四维之和、英语各维满分都没有被强制；通过校验后模型给什么就显示什么，只保证总分不超过满分、字段非空且类型正确。
 - 英语各维 `maxScore` 由模型决定，不同报告之间可能不一致。
-- release 构建仍用 debug 签名，包名是 `com.example.essay_trainer`。不能直接上架。
+- 发行版用独立发布密钥签名，但包名仍是 `com.example.essay_trainer`，不是商店标识；上架 Play 前需要换包名，那会让已安装用户变成另一个应用、需要重装。
 - 应用内真实 Key 的完整点击链路没在稳定设备上复验：模拟器没有 `/dev/kvm`，软件模拟下 `system_server` 持续 ANR。服务层 live check 已通过；系统分享 chooser 也缺现场截图。
 - 报告只能复制或分享文本摘要，不能导出 PDF、DOCX 或其他格式。
 

@@ -123,12 +123,13 @@ class _ReportPageState extends State<ReportPage> {
             tooltip: '分享报告',
             icon: const Icon(Icons.share_outlined),
           ),
+          const SizedBox(width: 8),
           IconButton(
             onPressed: _report == null ? null : _copySummary,
             tooltip: '复制报告摘要',
             icon: const Icon(Icons.copy_all_outlined),
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: 8),
         ],
       ),
       body: _buildBody(theme),
@@ -137,7 +138,7 @@ class _ReportPageState extends State<ReportPage> {
 
   Widget _buildBody(ThemeData theme) {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator());
+      return const AppLoadingState();
     }
     if (_error != null || _report == null) {
       return Center(
@@ -177,7 +178,7 @@ class _ReportPageState extends State<ReportPage> {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 760),
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
           children: [
             Wrap(
               spacing: 8,
@@ -188,7 +189,7 @@ class _ReportPageState extends State<ReportPage> {
                 StatusPill(label: formatUpdatedAt(report.createdAt)),
               ],
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 16),
             Text(draft?.title ?? '批改报告', style: theme.textTheme.headlineMedium),
             const SizedBox(height: 16),
             _ScoreCard(report: report, band: band),
@@ -198,7 +199,7 @@ class _ReportPageState extends State<ReportPage> {
             ],
             const SizedBox(height: 24),
             Text('分维度评分', style: theme.textTheme.titleMedium),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             for (
               var index = 0;
               index < report.dimensionScores.length;
@@ -206,7 +207,7 @@ class _ReportPageState extends State<ReportPage> {
             ) ...[
               _DimensionCard(score: report.dimensionScores[index]),
               if (index != report.dimensionScores.length - 1)
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
             ],
             const SizedBox(height: 24),
             Row(
@@ -222,7 +223,7 @@ class _ReportPageState extends State<ReportPage> {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             if (report.sentenceFeedback.isEmpty)
               const AppSurface(child: Text('这次没有逐句反馈。'))
             else
@@ -240,7 +241,7 @@ class _ReportPageState extends State<ReportPage> {
               ],
             const SizedBox(height: 24),
             Text('逐段诊断', style: theme.textTheme.titleMedium),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             if (report.paragraphFeedback.isEmpty)
               const AppSurface(child: Text('这次没有逐段反馈。'))
             else
@@ -255,7 +256,7 @@ class _ReportPageState extends State<ReportPage> {
                 if (index != report.paragraphFeedback.length - 1)
                   const SizedBox(height: 8),
               ],
-            const SizedBox(height: 26),
+            const SizedBox(height: 24),
             Row(
               children: [
                 Expanded(
@@ -280,7 +281,7 @@ class _ReportPageState extends State<ReportPage> {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             AppSurface(
               color: theme.colorScheme.surfaceContainerLow,
               child: SelectableText(
@@ -331,7 +332,7 @@ class _ScoreCard extends StatelessWidget {
     final theme = Theme.of(context);
     return AppSurface(
       color: band.container,
-      padding: const EdgeInsets.all(22),
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -364,7 +365,7 @@ class _ScoreCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           ClipRRect(
             borderRadius: BorderRadius.circular(999),
             child: LinearProgressIndicator(
@@ -374,7 +375,7 @@ class _ScoreCard extends StatelessWidget {
               backgroundColor: band.onContainer.withValues(alpha: 0.15),
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Text(
             '总分来自各维度评分，具体失分原因见下方诊断。',
             style: theme.textTheme.bodySmall?.copyWith(
@@ -398,7 +399,7 @@ class _PromptContextCard extends StatelessWidget {
     final scheme = theme.colorScheme;
     return AppSurface(
       color: scheme.surfaceContainer,
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -565,41 +566,44 @@ class _ParagraphFeedbackCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    return AppSurface(
-      color: scheme.surfaceContainerLow,
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '第 ${feedback.paragraphIndex + 1} 段',
-            style: theme.textTheme.labelLarge?.copyWith(color: scheme.primary),
-          ),
-          const SizedBox(height: 8),
-          Text(feedback.coherenceComment, style: theme.textTheme.bodyMedium),
-          const SizedBox(height: 4),
-          Text(
-            feedback.contentComment,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: scheme.onSurfaceVariant,
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '第 ${feedback.paragraphIndex + 1} 段',
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: scheme.primary,
+              ),
             ),
-          ),
-          const SizedBox(height: 10),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: scheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              '建议：${feedback.suggestion}',
+            const SizedBox(height: 8),
+            Text(feedback.coherenceComment, style: theme.textTheme.bodyMedium),
+            const SizedBox(height: 4),
+            Text(
+              feedback.contentComment,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: scheme.onSurfaceVariant,
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: scheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                '建议：${feedback.suggestion}',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -35,9 +35,28 @@ void main() {
     await tester.drag(find.text('A Small Decision'), const Offset(-600, 0));
     await tester.pumpAndSettle();
 
+    expect(find.text('删除这份报告？'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, '删除'));
+    await tester.pumpAndSettle();
+
     expect(reports.deleted, ['r1']);
     expect(find.text('A Small Decision'), findsNothing);
     expect(find.text('The Quiet Library'), findsOneWidget);
+  });
+
+  testWidgets('empty history offers a start action', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(420, 1000));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.themeFor(AppTheme.fallbackScheme(Brightness.light)),
+        home: HistoryPage(reports: _ReportRepo([]), drafts: _DraftRepo({})),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('去首页开始写作'), findsOneWidget);
   });
 }
 

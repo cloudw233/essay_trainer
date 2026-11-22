@@ -66,6 +66,25 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   Future<bool> _confirmDelete(_HistoryEntry entry) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('删除这份报告？'),
+        content: const Text('删除后无法恢复；对应的草稿不会被删除。'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('取消'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('删除'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return false;
+
     try {
       await widget.reports.delete(entry.report.id);
       return true;
@@ -119,7 +138,7 @@ class _HistoryPageState extends State<HistoryPage> {
 
   Widget _buildBody(ThemeData theme, ColorScheme scheme) {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator());
+      return const AppLoadingState();
     }
 
     if (_error != null) {
@@ -144,114 +163,128 @@ class _HistoryPageState extends State<HistoryPage> {
       );
     }
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text('批改档案', style: theme.textTheme.headlineMedium),
-            ),
-            if (_entries.isNotEmpty)
-              Text(
-                '共 ${_entries.length} 份',
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
-              ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Text(
-          '按时间倒序排列。向左滑动可以删除报告。',
-          style: theme.textTheme.bodyLarge?.copyWith(
-            color: scheme.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: 20),
-        if (_entries.isEmpty)
-          AppSurface(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-            child: Column(
-              children: [
-                Container(
-                  width: 64,
-                  height: 64,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: scheme.tertiaryContainer,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.history_edu_outlined,
-                    color: scheme.onTertiaryContainer,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text('还没有批改记录', style: theme.textTheme.titleMedium),
-                const SizedBox(height: 6),
-                Text(
-                  '完成一次 AI 批改后，分维度评分、逐句建议和全文升格都会保存在本机。',
-                  textAlign: TextAlign.center,
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  '按时间倒序排列。向左滑动可以删除报告。',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: scheme.onSurfaceVariant,
                   ),
                 ),
-              ],
-            ),
-          )
-        else
-          for (final entry in _entries) ...[
-            Dismissible(
-              key: ValueKey(entry.report.id),
-              direction: DismissDirection.endToStart,
-              confirmDismiss: (_) => _confirmDelete(entry),
-              onDismissed: (_) => _removeEntry(entry),
-              background: Container(
-                alignment: Alignment.centerRight,
-                padding: const EdgeInsets.only(right: 24),
-                decoration: BoxDecoration(
-                  color: scheme.errorContainer,
-                  borderRadius: BorderRadius.circular(24),
+              ),
+              if (_entries.isNotEmpty) ...[
+                const SizedBox(width: 8),
+                Text(
+                  '共 ${_entries.length} 份',
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.delete_outline, color: scheme.onErrorContainer),
-                    const SizedBox(width: 8),
-                    Text(
-                      '删除',
-                      style: theme.textTheme.labelLarge?.copyWith(
+              ],
+            ],
+          ),
+          const SizedBox(height: 16),
+          if (_entries.isEmpty)
+            AppSurface(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              child: Column(
+                children: [
+                  Container(
+                    width: 64,
+                    height: 64,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: scheme.tertiaryContainer,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.history_edu_outlined,
+                      color: scheme.onTertiaryContainer,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text('还没有批改记录', style: theme.textTheme.titleMedium),
+                  const SizedBox(height: 8),
+                  Text(
+                    '完成一次 AI 批改后，分维度评分、逐句建议和全文升格都会保存在本机。',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  FilledButton.tonalIcon(
+                    onPressed: () => context.go('/'),
+                    icon: const Icon(Icons.edit_outlined),
+                    label: const Text('去首页开始写作'),
+                  ),
+                ],
+              ),
+            )
+          else
+            for (final entry in _entries) ...[
+              Dismissible(
+                key: ValueKey(entry.report.id),
+                direction: DismissDirection.endToStart,
+                confirmDismiss: (_) => _confirmDelete(entry),
+                onDismissed: (_) => _removeEntry(entry),
+                background: Container(
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.only(right: 24),
+                  decoration: BoxDecoration(
+                    color: scheme.errorContainer,
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.delete_outline,
                         color: scheme.onErrorContainer,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 8),
+                      Text(
+                        '删除',
+                        style: theme.textTheme.labelLarge?.copyWith(
+                          color: scheme.onErrorContainer,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                child: _ReportHistoryCard(
+                  entry: entry,
+                  onTap: () => _openReport(entry),
                 ),
               ),
-              child: _ReportHistoryCard(
-                entry: entry,
-                onTap: () => _openReport(entry),
-              ),
-            ),
-            const SizedBox(height: 10),
-          ],
-        const SizedBox(height: 16),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(Icons.lock_outline_rounded, color: scheme.onSurfaceVariant),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                '报告与草稿只保存在设备本地。卸载应用会一并删除，重要内容请及时复制。',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
+              const SizedBox(height: 12),
+            ],
+          const SizedBox(height: 16),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.lock_outline_rounded, color: scheme.onSurfaceVariant),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  '报告与草稿只保存在设备本地。卸载应用会一并删除，重要内容请及时复制。',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
-      ],
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -286,7 +319,7 @@ class _ReportHistoryCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(18),
+          padding: const EdgeInsets.all(16),
           child: Row(
             children: [
               Container(
@@ -317,7 +350,7 @@ class _ReportHistoryCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

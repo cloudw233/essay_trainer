@@ -186,6 +186,31 @@ class _GradingPageState extends State<GradingPage> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(title: const Text('AI 批改')),
+      bottomNavigationBar: _error != null && !_loading && !_grading
+          ? SafeArea(
+              key: const ValueKey('grading-bottom-actions'),
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: _needsKey
+                      ? FilledButton.icon(
+                          onPressed: _goToSettings,
+                          icon: const Icon(Icons.settings_outlined),
+                          label: const Text('去设置 API Key'),
+                        )
+                      : FilledButton.icon(
+                          onPressed: _draft == null
+                              ? null
+                              : () => _runGrading(_draft!),
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('重新批改'),
+                        ),
+                ),
+              ),
+            )
+          : null,
       body: Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
@@ -198,7 +223,7 @@ class _GradingPageState extends State<GradingPage> {
 
   Widget _buildBody(ThemeData theme) {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator());
+      return const AppLoadingState(height: 320);
     }
 
     if (_grading) {
@@ -213,7 +238,7 @@ class _GradingPageState extends State<GradingPage> {
     final error = _error;
     if (error != null) {
       return ListView(
-        padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+        padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
         children: [
           AppSurface(
             color: theme.colorScheme.errorContainer,
@@ -235,7 +260,7 @@ class _GradingPageState extends State<GradingPage> {
                           color: theme.colorScheme.onErrorContainer,
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 8),
                       Text(
                         error.toString(),
                         style: theme.textTheme.bodySmall?.copyWith(
@@ -264,26 +289,13 @@ class _GradingPageState extends State<GradingPage> {
               ],
             ),
           ],
-          const SizedBox(height: 20),
-          if (_needsKey)
-            FilledButton.icon(
-              onPressed: _goToSettings,
-              icon: const Icon(Icons.settings_outlined),
-              label: const Text('去设置 API Key'),
-            )
-          else
-            FilledButton.icon(
-              onPressed: _draft == null ? null : () => _runGrading(_draft!),
-              icon: const Icon(Icons.refresh),
-              label: const Text('重新批改'),
-            ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 16),
           OutlinedButton(
             onPressed: () => context.pop(),
             child: const Text('返回编辑'),
           ),
           if (_rawResponse != null && _rawResponse!.isNotEmpty) ...[
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             TextButton.icon(
               onPressed: _copyRaw,
               icon: const Icon(Icons.copy_all_outlined),
@@ -324,7 +336,7 @@ class _GradingProgress extends StatelessWidget {
     final seconds = (elapsedSeconds % 60).toString().padLeft(2, '0');
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 28, 20, 32),
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
       children: [
         Container(
           width: 64,
@@ -336,7 +348,7 @@ class _GradingProgress extends StatelessWidget {
           ),
           child: Icon(Icons.auto_awesome, color: scheme.onTertiaryContainer),
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: 16),
         Text('正在批改这篇作文', style: theme.textTheme.headlineSmall),
         const SizedBox(height: 8),
         Text(
@@ -347,7 +359,7 @@ class _GradingProgress extends StatelessWidget {
             color: scheme.onSurfaceVariant,
           ),
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: 16),
         const LinearProgressIndicator(),
         const SizedBox(height: 8),
         Align(
@@ -378,7 +390,7 @@ class _GradingProgress extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: 16),
         Text(
           '完成后会自动保存报告，并进入分维度评分与逐句诊断页面。',
           style: theme.textTheme.bodySmall?.copyWith(

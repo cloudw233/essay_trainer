@@ -18,7 +18,7 @@ class AppDatabase {
       settings = SettingsRepository(_db);
 
   static const _databaseName = 'essay_trainer.db';
-  static const _schemaVersion = 2;
+  static const _schemaVersion = 3;
 
   final Database _db;
 
@@ -51,6 +51,9 @@ class AppDatabase {
           if (oldVersion < 2) {
             await _migrateToVersion2(db);
           }
+          if (oldVersion < 3) {
+            await _migrateToVersion3(db);
+          }
         },
       ),
     );
@@ -71,6 +74,7 @@ class AppDatabase {
         word_count INTEGER NOT NULL DEFAULT 0,
         prompt_text TEXT NOT NULL DEFAULT '',
         prompt_preset_id TEXT,
+        required_words INTEGER NOT NULL DEFAULT 0,
         created_at INTEGER NOT NULL,
         updated_at INTEGER NOT NULL
       )
@@ -152,6 +156,15 @@ class AppDatabase {
       'ALTER TABLE presets ADD COLUMN created_at INTEGER NOT NULL DEFAULT 0',
     );
     await batch.commit(noResult: true);
+  }
+
+  /// Stores the word target a topic asks for. Drafts written before this
+  /// column existed keep 0, which the editor reads as "use the language
+  /// default".
+  static Future<void> _migrateToVersion3(Database db) async {
+    await db.execute(
+      'ALTER TABLE drafts ADD COLUMN required_words INTEGER NOT NULL DEFAULT 0',
+    );
   }
 
   Future<void> close() => _db.close();

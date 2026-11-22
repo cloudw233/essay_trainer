@@ -16,6 +16,7 @@ class EssayDraft {
     required this.updatedAt,
     this.promptText = '',
     this.promptPresetId,
+    this.requiredWords = 0,
   });
 
   final String id;
@@ -32,6 +33,18 @@ class EssayDraft {
   final String promptText;
   final String? promptPresetId;
 
+  /// The word count the topic asks for, or 0 when the topic states none.
+  ///
+  /// It is a target rather than a submission gate: the editor shows progress
+  /// against it and still lets the writer submit short, which the grading
+  /// prompt can then judge.
+  final int requiredWords;
+
+  /// The word count to measure the essay against. Drafts without a topic
+  /// target fall back to the language default.
+  int get targetWords =>
+      requiredWords > 0 ? requiredWords : language.minimumWords;
+
   bool get hasPrompt => promptText.trim().isNotEmpty;
 
   EssayDraft copyWith({
@@ -45,6 +58,7 @@ class EssayDraft {
     DateTime? updatedAt,
     String? promptText,
     String? promptPresetId,
+    int? requiredWords,
   }) {
     return EssayDraft(
       id: id ?? this.id,
@@ -57,6 +71,7 @@ class EssayDraft {
       updatedAt: updatedAt ?? this.updatedAt,
       promptText: promptText ?? this.promptText,
       promptPresetId: promptPresetId ?? this.promptPresetId,
+      requiredWords: requiredWords ?? this.requiredWords,
     );
   }
 
@@ -70,6 +85,7 @@ class EssayDraft {
       'word_count': wordCount,
       'prompt_text': promptText,
       'prompt_preset_id': promptPresetId,
+      'required_words': requiredWords,
       'created_at': createdAt.millisecondsSinceEpoch,
       'updated_at': updatedAt.millisecondsSinceEpoch,
     };
@@ -85,6 +101,7 @@ class EssayDraft {
       wordCount: _asInt(map['word_count']),
       promptText: (map['prompt_text'] as String?) ?? '',
       promptPresetId: map['prompt_preset_id'] as String?,
+      requiredWords: _asInt(map['required_words']),
       createdAt: DateTime.fromMillisecondsSinceEpoch(_asInt(map['created_at'])),
       updatedAt: DateTime.fromMillisecondsSinceEpoch(_asInt(map['updated_at'])),
     );

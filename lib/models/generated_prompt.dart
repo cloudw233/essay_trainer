@@ -119,18 +119,9 @@ class GeneratedPrompt {
     required DateTime now,
     String? promptPresetId,
   }) {
-    return EssayDraft(
-      id: draftId,
-      title: title.trim().isEmpty ? '未命名草稿' : title.trim(),
-      language: language,
-      genre: genre,
-      content: '',
-      wordCount: 0,
-      createdAt: now,
-      updatedAt: now,
-      promptText: promptText,
+    return toSelection(
       promptPresetId: promptPresetId,
-    );
+    ).toDraft(draftId: draftId, now: now);
   }
 }
 
@@ -154,6 +145,25 @@ class PromptSelection {
   final EssayGenre genre;
   final int suggestedWordCount;
   final String? promptPresetId;
+
+  /// Creates the draft that starts from this choice, keeping the topic's word
+  /// count so the editor can measure the essay against it.
+  EssayDraft toDraft({required String draftId, required DateTime now}) {
+    final trimmedTitle = title.trim();
+    return EssayDraft(
+      id: draftId,
+      title: trimmedTitle.isEmpty ? '未命名草稿' : trimmedTitle,
+      language: language,
+      genre: genre,
+      content: '',
+      wordCount: 0,
+      createdAt: now,
+      updatedAt: now,
+      promptText: promptText,
+      promptPresetId: promptPresetId,
+      requiredWords: suggestedWordCount,
+    );
+  }
 }
 
 String _requiredString(Object? value, String field) {

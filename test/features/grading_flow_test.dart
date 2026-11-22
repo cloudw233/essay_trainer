@@ -87,6 +87,47 @@ void main() {
     expect(reports.saved, hasLength(1));
     expect(reports.saved.single.draftId, draft.id);
   });
+
+  testWidgets('no key puts the recovery action in the bottom bar', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(420, 1000));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    final draft = EssayDraft(
+      id: 'draft-1',
+      title: 'A Turning Point',
+      language: EssayLanguage.english,
+      genre: EssayGenre.narrative,
+      content: 'The morning was cold and the street was empty.',
+      wordCount: 9,
+      createdAt: DateTime.utc(2026, 1, 1),
+      updatedAt: DateTime.utc(2026, 1, 1),
+    );
+    final keys = ApiKeyController(_KeyStore(null));
+    await keys.load();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.themeFor(AppTheme.fallbackScheme(Brightness.light)),
+        home: GradingPage(
+          draftId: draft.id,
+          drafts: _DraftRepo(draft),
+          reports: _ReportRepo(),
+          apiKeys: keys,
+          gradingService: GradingService(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final bottom = find.byKey(const ValueKey('grading-bottom-actions'));
+    expect(bottom, findsOneWidget);
+    expect(
+      find.descendant(of: bottom, matching: find.text('去设置 API Key')),
+      findsOneWidget,
+    );
+  });
 }
 
 http.Response _reportResponse() {

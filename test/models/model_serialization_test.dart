@@ -56,6 +56,42 @@ void main() {
       expect(restored.promptPresetId, 'preset-1');
     });
 
+    test('keeps the topic word target on a draft', () {
+      final draft = EssayDraft(
+        id: 'draft-target',
+        title: '一封没有寄出的信',
+        language: EssayLanguage.chinese,
+        genre: EssayGenre.narrative,
+        content: '那封信一直压在抽屉最底下。',
+        wordCount: 1,
+        createdAt: createdAt,
+        updatedAt: createdAt,
+        promptText: '阅读下面的材料，根据要求写作。不少于 800 字。',
+        requiredWords: 800,
+      );
+
+      final restored = EssayDraft.fromDbMap(draft.toDbMap());
+
+      expect(restored.requiredWords, 800);
+      expect(restored.targetWords, 800);
+    });
+
+    test('falls back to the language default without a topic target', () {
+      final draft = EssayDraft(
+        id: 'draft-no-target',
+        title: 'Draft',
+        language: EssayLanguage.chinese,
+        genre: EssayGenre.other,
+        content: '',
+        wordCount: 0,
+        createdAt: createdAt,
+        updatedAt: createdAt,
+      );
+
+      expect(draft.requiredWords, 0);
+      expect(draft.targetWords, 300);
+    });
+
     test('copyWith preserves identity when only content changes', () {
       final draft = EssayDraft(
         id: 'draft-1',

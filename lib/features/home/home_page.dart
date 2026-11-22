@@ -133,18 +133,9 @@ class _HomePageState extends State<HomePage> {
     );
     if (selection == null || !mounted) return;
 
-    final now = DateTime.now();
-    final draft = EssayDraft(
-      id: newLocalId('draft'),
-      title: selection.title.trim().isEmpty ? '未命名草稿' : selection.title.trim(),
-      language: selection.language,
-      genre: selection.genre,
-      content: '',
-      wordCount: 0,
-      createdAt: now,
-      updatedAt: now,
-      promptText: selection.promptText,
-      promptPresetId: selection.promptPresetId,
+    final draft = selection.toDraft(
+      draftId: newLocalId('draft'),
+      now: DateTime.now(),
     );
 
     try {
@@ -193,7 +184,7 @@ class _HomePageState extends State<HomePage> {
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 760),
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -256,10 +247,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildRecent(BuildContext context) {
     if (_loading) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 32),
-        child: Center(child: CircularProgressIndicator()),
-      );
+      return const AppLoadingState(height: 120);
     }
 
     if (_loadError != null) {
@@ -268,7 +256,7 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('草稿暂时读取失败', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
             Text(
               '请稍后重试。你的本地内容不会因此丢失。',
               style: Theme.of(context).textTheme.bodyMedium,
@@ -285,7 +273,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     if (_recent.isEmpty) {
-      return const _EmptyDrafts();
+      return _EmptyDrafts(onStart: _startWriting);
     }
 
     return Column(
@@ -295,7 +283,7 @@ class _HomePageState extends State<HomePage> {
             draft: _recent[index],
             onTap: () => _openDraft(_recent[index]),
           ),
-          if (index != _recent.length - 1) const SizedBox(height: 10),
+          if (index != _recent.length - 1) const SizedBox(height: 12),
         ],
       ],
     );
@@ -354,7 +342,7 @@ class _HeroCard extends StatelessWidget {
                   background: scheme.primary,
                   foreground: scheme.onPrimary,
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
                 Text(
                   '起笔，成文。',
                   style: theme.textTheme.headlineSmall?.copyWith(
@@ -522,7 +510,7 @@ class _ApiKeyNotice extends StatelessWidget {
                         color: scheme.onSecondaryContainer,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 4),
                     Text(
                       '密钥只保存在本机安全存储中，不写入代码或日志。',
                       style: theme.textTheme.bodySmall?.copyWith(
@@ -562,7 +550,7 @@ class _DraftCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(18),
+          padding: const EdgeInsets.all(16),
           child: Row(
             children: [
               Container(
@@ -578,7 +566,7 @@ class _DraftCard extends StatelessWidget {
                   color: scheme.onSecondaryContainer,
                 ),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -614,7 +602,9 @@ class _DraftCard extends StatelessWidget {
 }
 
 class _EmptyDrafts extends StatelessWidget {
-  const _EmptyDrafts();
+  const _EmptyDrafts({required this.onStart});
+
+  final VoidCallback onStart;
 
   @override
   Widget build(BuildContext context) {
@@ -630,13 +620,19 @@ class _EmptyDrafts extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text('还没有草稿', style: theme.textTheme.titleMedium),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
             '从上方选择一个语言与体裁，写下第一句。',
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: scheme.onSurfaceVariant,
             ),
+          ),
+          const SizedBox(height: 16),
+          OutlinedButton.icon(
+            onPressed: onStart,
+            icon: const Icon(Icons.edit_outlined),
+            label: const Text('写下第一篇'),
           ),
         ],
       ),

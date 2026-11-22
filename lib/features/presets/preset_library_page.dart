@@ -50,7 +50,7 @@ class _PresetLibraryPageState extends State<PresetLibraryPage> {
     }
   }
 
-  Future<void> _delete(PromptPreset preset) async {
+  Future<bool> _confirmDelete(PromptPreset preset) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -68,18 +68,34 @@ class _PresetLibraryPageState extends State<PresetLibraryPage> {
         ],
       ),
     );
-    if (confirmed != true || !mounted) return;
+    return confirmed == true && mounted;
+  }
+
+  void _removePresetFromList(PromptPreset preset) {
+    setState(
+      () => _items = _items.where((item) => item.id != preset.id).toList(),
+    );
+  }
+
+  Future<void> _deleteFromStorage(PromptPreset preset) async {
     try {
       await widget.presets.delete(preset.id);
-      if (!mounted) return;
-      setState(
-        () => _items = _items.where((item) => item.id != preset.id).toList(),
-      );
-      _showMessage('已删除预设。');
+      if (mounted) _showMessage('已删除预设。');
     } catch (_) {
       if (!mounted) return;
       _showMessage('删除失败，请稍后重试。');
+      await _load();
     }
+  }
+
+  Future<void> _deleteConfirmed(PromptPreset preset) async {
+    _removePresetFromList(preset);
+    await _deleteFromStorage(preset);
+  }
+
+  Future<void> _delete(PromptPreset preset) async {
+    if (!await _confirmDelete(preset) || !mounted) return;
+    await _deleteConfirmed(preset);
   }
 
   void _showMessage(String message) {
@@ -140,7 +156,7 @@ class _PresetLibraryPageState extends State<PresetLibraryPage> {
 
   Widget _buildBody(ThemeData theme, ColorScheme scheme) {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator());
+      return const AppLoadingState();
     }
 
     if (_error != null) {
@@ -165,47 +181,91 @@ class _PresetLibraryPageState extends State<PresetLibraryPage> {
       );
     }
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
-      children: [
-        Text('同一个题目库', style: theme.textTheme.headlineMedium),
-        const SizedBox(height: 8),
-        Text(
-          'AI 收藏和手动创建的题目都保存在这里，用来源标签区分。',
-          style: theme.textTheme.bodyLarge?.copyWith(
-            color: scheme.onSurfaceVariant,
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+        children: [
+          Text(
+            'AI 收藏和手动创建的题目都保存在这里，用来源标签区分。',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: scheme.onSurfaceVariant,
+            ),
           ),
-        ),
-        const SizedBox(height: 20),
-        if (_items.isEmpty)
-          AppSurface(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-            child: Column(
-              children: [
-                Icon(
-                  Icons.bookmarks_outlined,
-                  size: 40,
-                  color: scheme.onSurfaceVariant,
-                ),
-                const SizedBox(height: 12),
-                Text('还没有收藏的题目', style: theme.textTheme.titleMedium),
-                const SizedBox(height: 6),
-                Text(
-                  '在 AI 出题候选卡片上点「收藏」，题目就会出现在这里。',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyMedium?.copyWith(
+          const SizedBox(height: 16),
+          if (_items.isEmpty)
+            AppSurface(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.bookmarks_outlined,
+                    size: 40,
                     color: scheme.onSurfaceVariant,
                   ),
+                  const SizedBox(height: 12),
+                  Text('还没有收藏的题目', style: theme.textTheme.titleMedium),
+                  const SizedBox(height: 8),
+                  Text(
+                    '在 AI 出题候选卡片上点「收藏」，题目就会出现在这里。',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  OutlinedButton.icon(
+                    onPressed: _createManual,
+                    icon: const Icon(Icons.add),
+                    label: const Text('新建预设'),
+                  ),
+                ],
+              ),
+            )
+          else
+            for (final preset in _items) ...[
+              Dismissible(
+                key: ValueKey('preset-${preset.id}'),
+                direction: DismissDirection.endToStart,
+                confirmDismiss: (_) => _confirmDelete(preset),
+                onDismissed: (_) {
+                  _removePresetFromList(preset);
+                  _deleteFromStorage(preset);
+                },
+                background: Container(
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.only(right: 24),
+                  decoration: BoxDecoration(
+                    color: scheme.errorContainer,
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.delete_outline,
+                        color: scheme.onErrorContainer,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '删除',
+                        style: theme.textTheme.labelLarge?.copyWith(
+                          color: scheme.onErrorContainer,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-          )
-        else
-          for (final preset in _items) ...[
-            _PresetCard(preset: preset, onDelete: () => _delete(preset)),
-            const SizedBox(height: 10),
-          ],
-      ],
+                child: _PresetCard(
+                  preset: preset,
+                  onDelete: () => _delete(preset),
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+        ],
+      ),
     );
   }
 }
@@ -223,7 +283,7 @@ class _PresetCard extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(18, 16, 8, 16),
+        padding: const EdgeInsets.fromLTRB(16, 16, 8, 16),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -242,7 +302,7 @@ class _PresetCard extends StatelessWidget {
                 color: scheme.onSecondaryContainer,
               ),
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -253,10 +313,10 @@ class _PresetCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.titleMedium,
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
                   Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
+                    spacing: 8,
+                    runSpacing: 8,
                     children: [
                       StatusPill(
                         label: preset.source.label,
@@ -280,7 +340,7 @@ class _PresetCard extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(
                       preset.promptText,
-                      maxLines: 3,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: scheme.onSurfaceVariant,
@@ -288,10 +348,10 @@ class _PresetCard extends StatelessWidget {
                     ),
                   ],
                   if (preset.rationale.trim().isNotEmpty) ...[
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 8),
                     Text(
                       preset.rationale,
-                      maxLines: 2,
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: scheme.onSurfaceVariant,
@@ -374,7 +434,7 @@ class _ManualPresetSheetState extends State<_ManualPresetSheet> {
           shrinkWrap: true,
           children: [
             Text('新建手动预设', style: theme.textTheme.titleLarge),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
             Text(
               '手动题也会进入同一个预设库，来源标记为「手动创建」。',
               style: theme.textTheme.bodySmall?.copyWith(
@@ -438,7 +498,7 @@ class _ManualPresetSheetState extends State<_ManualPresetSheet> {
                 return count == null || count <= 0 ? '请输入正整数' : null;
               },
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             FilledButton(onPressed: _save, child: const Text('保存预设')),
           ],
         ),

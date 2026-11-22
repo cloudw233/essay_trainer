@@ -19,7 +19,7 @@ String buildReportSummary({required GradingReport report, EssayDraft? draft}) {
   if (draft != null) {
     buffer.writeln(
       '${draft.language.label} · ${draft.genre.label} · '
-      '${draft.language.minimumWords} ${draft.language.countUnit}起',
+      '${draft.targetWords} ${draft.language.countUnit}起',
     );
   }
 

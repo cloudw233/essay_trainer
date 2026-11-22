@@ -274,7 +274,7 @@ class _PromptGenerationSheetState extends State<PromptGenerationSheet> {
       children: [
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(24, 18, 24, 16),
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
             children: [
               if (!widget.apiKeys.hasKey) ...[
                 AppSurface(
@@ -306,14 +306,14 @@ class _PromptGenerationSheetState extends State<PromptGenerationSheet> {
                 const SizedBox(height: 16),
               ],
               Text('这次想练什么？', style: theme.textTheme.titleMedium),
-              const SizedBox(height: 6),
+              const SizedBox(height: 8),
               Text(
                 'AI 命题会给出候选，但也会偶尔套作或跑偏。读题、换一批、手动改，都由你决定。',
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: scheme.onSurfaceVariant,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
               Text(
                 '语言',
                 style: theme.textTheme.labelLarge?.copyWith(
@@ -340,7 +340,7 @@ class _PromptGenerationSheetState extends State<PromptGenerationSheet> {
                   setState(() => _language = selection.first);
                 },
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
               Text(
                 '体裁',
                 style: theme.textTheme.labelLarge?.copyWith(
@@ -360,7 +360,7 @@ class _PromptGenerationSheetState extends State<PromptGenerationSheet> {
                     ),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
               Text(
                 '难度',
                 style: theme.textTheme.labelLarge?.copyWith(
@@ -379,7 +379,7 @@ class _PromptGenerationSheetState extends State<PromptGenerationSheet> {
                   setState(() => _difficulty = selection.first);
                 },
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 8),
               Text(
                 _difficulty.hint,
                 style: theme.textTheme.bodySmall?.copyWith(
@@ -411,7 +411,7 @@ class _PromptGenerationSheetState extends State<PromptGenerationSheet> {
 
   Widget _buildLoading(ThemeData theme, ColorScheme scheme) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 18, 24, 24),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
       children: [
         Text('正在出题', style: theme.textTheme.titleMedium),
         const SizedBox(height: 8),
@@ -421,9 +421,9 @@ class _PromptGenerationSheetState extends State<PromptGenerationSheet> {
             color: scheme.onSurfaceVariant,
           ),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 12),
         const LinearProgressIndicator(),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
         for (var index = 0; index < 3; index++) ...[
           const _SkeletonPromptCard(),
           if (index != 2) const SizedBox(height: 12),
@@ -437,7 +437,7 @@ class _PromptGenerationSheetState extends State<PromptGenerationSheet> {
     if (batch == null) return const SizedBox.shrink();
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 18, 24, 24),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
       children: [
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -475,7 +475,7 @@ class _PromptGenerationSheetState extends State<PromptGenerationSheet> {
             StatusPill(label: _difficulty.label),
           ],
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 12),
         for (var index = 0; index < batch.prompts.length; index++) ...[
           _CandidateCard(
             prompt: batch.prompts[index],
@@ -501,7 +501,7 @@ class _PromptGenerationSheetState extends State<PromptGenerationSheet> {
 
   Widget _buildError(ThemeData theme, ColorScheme scheme) {
     return ListView(
-      padding: EdgeInsets.fromLTRB(24, 18, 24, 24),
+      padding: EdgeInsets.fromLTRB(24, 16, 24, 24),
       children: [
         AppSurface(
           color: scheme.errorContainer,
@@ -551,7 +551,7 @@ class _PromptGenerationSheetState extends State<PromptGenerationSheet> {
             child: const Text('调整参数'),
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
         _buildManualFallback(theme, scheme),
       ],
     );
@@ -563,14 +563,14 @@ class _PromptGenerationSheetState extends State<PromptGenerationSheet> {
       children: [
         const SizedBox(height: 12),
         Text('手动输入题目', style: theme.textTheme.titleSmall),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
         Text(
           '如果你觉得 AI 的题都不合适，可以直接把完整题目粘贴进来，仍然会作为本稿的题目快照保存。',
           style: theme.textTheme.bodySmall?.copyWith(
             color: scheme.onSurfaceVariant,
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 12),
         TextField(
           controller: _manualController,
           minLines: 3,
@@ -581,7 +581,7 @@ class _PromptGenerationSheetState extends State<PromptGenerationSheet> {
             alignLabelWithHint: true,
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 12),
         SizedBox(
           width: double.infinity,
           child: OutlinedButton.icon(
@@ -676,7 +676,7 @@ class _CandidateCard extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -694,7 +694,7 @@ class _CandidateCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -715,7 +715,7 @@ class _CandidateCard extends StatelessWidget {
               style: theme.textTheme.bodyMedium,
             ),
             if (prompt.rationale.isNotEmpty) ...[
-              const SizedBox(height: 10),
+              const SizedBox(height: 12),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -736,7 +736,7 @@ class _CandidateCard extends StatelessWidget {
                 ],
               ),
             ],
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -780,16 +780,16 @@ class _SkeletonPromptCard extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             bar(0.55, 16),
             const SizedBox(height: 12),
             bar(0.9, 11),
-            const SizedBox(height: 7),
+            const SizedBox(height: 8),
             bar(0.75, 11),
-            const SizedBox(height: 18),
+            const SizedBox(height: 16),
             bar(0.35, 12),
           ],
         ),

@@ -5,7 +5,7 @@ class AppSurface extends StatelessWidget {
   const AppSurface({
     super.key,
     required this.child,
-    this.padding = const EdgeInsets.all(20),
+    this.padding = const EdgeInsets.all(16),
     this.color,
     this.border,
   });
@@ -61,6 +61,43 @@ class InkSeal extends StatelessWidget {
   }
 }
 
+/// A fixed-height loading placeholder shared by data-driven pages.
+///
+/// Keeping the height stable avoids the content jump between loading and the
+/// loaded/empty state. It intentionally stays a simple progress indicator;
+/// the app does not need per-page skeletons to communicate progress.
+class AppLoadingState extends StatelessWidget {
+  const AppLoadingState({super.key, this.height = 240, this.label});
+
+  final double height;
+  final String? label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return SizedBox(
+      height: height,
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircularProgressIndicator(),
+            if (label != null) ...[
+              const SizedBox(height: 12),
+              Text(
+                label!,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// A compact status pill for a label like "动态取色 · 已启用".
 class StatusPill extends StatelessWidget {
   const StatusPill({
@@ -81,7 +118,7 @@ class StatusPill extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final fg = foreground ?? scheme.onSecondaryContainer;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: background ?? scheme.secondaryContainer,
         borderRadius: BorderRadius.circular(999),

@@ -131,6 +131,35 @@ void main() {
       expect(watermarkRect.right, closeTo(stackRect.right - 8, 0.01));
     },
   );
+
+  testWidgets('empty recent drafts offers a start action', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(420, 1000));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    final settings = _MemorySettingsRepository();
+    final defaults = WritingDefaultsController(settings: settings);
+    await defaults.load();
+    final keys = ApiKeyController(_MemoryKeyStore());
+    await keys.load();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.themeFor(AppTheme.fallbackScheme(Brightness.light)),
+        home: HomePage(
+          drafts: _DraftRepo(const []),
+          presets: _EmptyPresetRepository(),
+          apiKeys: keys,
+          writingDefaults: defaults,
+          promptGeneration: PromptGenerationController(
+            service: PromptGenerationService(),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('写下第一篇'), findsOneWidget);
+  });
 }
 
 EssayDraft _draft(String id, String title, DateTime updatedAt) {

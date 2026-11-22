@@ -50,6 +50,7 @@ class _EditorPageState extends State<EditorPage> {
   bool _saving = false;
   Object? _loadError;
   int _count = 0;
+  int _requiredWords = 0;
 
   @override
   void initState() {
@@ -112,6 +113,7 @@ class _EditorPageState extends State<EditorPage> {
         _savedAt = draft.updatedAt;
         _promptText = draft.promptText;
         _promptPresetId = draft.promptPresetId;
+        _requiredWords = draft.requiredWords;
         _count = draft.wordCount;
         _loading = false;
       });
@@ -128,10 +130,13 @@ class _EditorPageState extends State<EditorPage> {
       _titleController.text.trim().isNotEmpty ||
       _contentController.text.trim().isNotEmpty;
 
-  bool get _meetsMinimum => _count >= _language.minimumWords;
+  /// The topic's word count, or the language default when the topic states
+  /// none. It is a target, not a gate: short essays can still be submitted and
+  /// left to the grader.
+  int get _targetWords =>
+      _requiredWords > 0 ? _requiredWords : _language.minimumWords;
 
-  bool get _canSubmit =>
-      _titleController.text.trim().isNotEmpty && _meetsMinimum;
+  bool get _canSubmit => _titleController.text.trim().isNotEmpty;
 
   Future<bool> _save({bool announce = true}) async {
     if (_saving) return false;
@@ -163,6 +168,7 @@ class _EditorPageState extends State<EditorPage> {
       updatedAt: now,
       promptText: _promptText,
       promptPresetId: _promptPresetId,
+      requiredWords: _requiredWords,
     );
 
     try {
@@ -185,12 +191,7 @@ class _EditorPageState extends State<EditorPage> {
 
   Future<void> _handleSubmit() async {
     if (!_canSubmit) {
-      if (_titleController.text.trim().isEmpty) {
-        _showMessage('先给这篇作文起个标题。');
-      } else {
-        final remaining = _language.minimumWords - _count;
-        _showMessage('还差 $remaining ${_language.countUnit} 才达到建议字数。');
-      }
+      _showMessage('先给这篇作文起个标题。');
       return;
     }
 
@@ -230,7 +231,7 @@ class _EditorPageState extends State<EditorPage> {
                       color: scheme.onSurfaceVariant,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton(
@@ -301,7 +302,8 @@ class _EditorPageState extends State<EditorPage> {
                 canSubmit: _canSubmit,
                 saving: _saving,
                 compact: keyboardInset > 0,
-                progress: (_count / _language.minimumWords).clamp(0.0, 1.0),
+                target: _targetWords,
+                progress: (_count / _targetWords).clamp(0.0, 1.0),
                 onSave: () => _save(),
                 onSubmit: _canSubmit ? _handleSubmit : null,
               ),
@@ -329,7 +331,7 @@ class _EditorPageState extends State<EditorPage> {
                 ),
                 const SizedBox(height: 12),
                 Text('找不到这篇草稿', style: theme.textTheme.titleMedium),
-                const SizedBox(height: 6),
+                const SizedBox(height: 8),
                 Text(
                   '它可能已经被删除。返回首页可以开始一篇新的作文。',
                   textAlign: TextAlign.center,
@@ -352,7 +354,7 @@ class _EditorPageState extends State<EditorPage> {
     return SafeArea(
       top: false,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -376,7 +378,7 @@ class _EditorPageState extends State<EditorPage> {
               ],
             ),
             if (_promptText.trim().isNotEmpty) ...[
-              const SizedBox(height: 14),
+              const SizedBox(height: 16),
               _PromptReference(promptText: _promptText),
             ],
             const SizedBox(height: 16),
@@ -439,7 +441,7 @@ class _PromptReference extends StatelessWidget {
 
     return AppSurface(
       color: scheme.surfaceContainerLow,
-      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+      padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -456,7 +458,7 @@ class _PromptReference extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 72),
             child: SingleChildScrollView(
@@ -479,6 +481,7 @@ class _EditorBottomBar extends StatelessWidget {
   const _EditorBottomBar({
     required this.language,
     required this.count,
+    required this.target,
     required this.canSubmit,
     required this.saving,
     required this.compact,
@@ -489,6 +492,7 @@ class _EditorBottomBar extends StatelessWidget {
 
   final EssayLanguage language;
   final int count;
+  final int target;
   final bool canSubmit;
   final bool saving;
   final bool compact;
@@ -500,9 +504,9 @@ class _EditorBottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final remaining = language.minimumWords - count;
+    final remaining = target - count;
     final statusText = remaining > 0
-        ? '还差 $remaining ${language.countUnit}'
+        ? '还差 $remaining ${language.countUnit} · 仍可提交'
         : '已达到建议字数';
 
     if (compact) {
@@ -516,7 +520,7 @@ class _EditorBottomBar extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    '$count / ${language.minimumWords} ${language.countUnit}',
+                    '$count / $target ${language.countUnit}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.labelMedium?.copyWith(
@@ -546,7 +550,7 @@ class _EditorBottomBar extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -563,7 +567,7 @@ class _EditorBottomBar extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    '$count / ${language.minimumWords} ${language.countUnit}',
+                    '$count / $target ${language.countUnit}',
                     style: theme.textTheme.labelMedium?.copyWith(
                       color: scheme.onSurfaceVariant,
                     ),

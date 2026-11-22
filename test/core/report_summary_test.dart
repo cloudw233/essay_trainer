@@ -77,6 +77,16 @@ void main() {
     expect(summary, contains('The morning was cold. The street was empty.'));
   });
 
+  test('quotes the topic word count when the draft has one', () {
+    final summary = buildReportSummary(
+      report: report,
+      draft: draft.copyWith(requiredWords: 800),
+    );
+
+    expect(summary, contains('800 词起'));
+    expect(summary, isNot(contains('60 词起')));
+  });
+
   test('falls back to a generic title when the draft is gone', () {
     final summary = buildReportSummary(report: report, draft: null);
     expect(summary, contains('批改报告'));

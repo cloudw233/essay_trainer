@@ -44,6 +44,52 @@ void main() {
     expect(find.text('先配置 DeepSeek API Key'), findsOneWidget);
     expect(find.text('去设置'), findsOneWidget);
   });
+
+  testWidgets('treats the topic word count as a target, not a gate', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(420, 1000));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    final keys = ApiKeyController(_KeyStore());
+    await keys.load();
+    final drafts = _DraftRepo(
+      seed: EssayDraft(
+        id: 'draft-target',
+        title: '一封没有寄出的信',
+        language: EssayLanguage.chinese,
+        genre: EssayGenre.narrative,
+        content: List.filled(200, '字').join(),
+        wordCount: 200,
+        createdAt: DateTime.utc(2026, 1, 1),
+        updatedAt: DateTime.utc(2026, 1, 1),
+        promptText: '阅读下面的材料，根据要求写作。不少于 800 字。',
+        requiredWords: 800,
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.themeFor(AppTheme.fallbackScheme(Brightness.light)),
+        home: EditorPage(
+          drafts: drafts,
+          apiKeys: keys,
+          draftId: 'draft-target',
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('200 / 800 字'), findsOneWidget);
+    expect(find.text('还差 600 字 · 仍可提交'), findsOneWidget);
+
+    await tester.tap(find.text('提交批改'));
+    await tester.pumpAndSettle();
+
+    expect(drafts.saved, hasLength(1));
+    expect(drafts.saved.single.requiredWords, 800);
+    expect(find.text('先配置 DeepSeek API Key'), findsOneWidget);
+  });
 }
 
 class _KeyStore implements SecureKeyStore {
@@ -58,13 +104,17 @@ class _KeyStore implements SecureKeyStore {
 }
 
 class _DraftRepo implements DraftRepository {
+  _DraftRepo({this.seed});
+
+  final EssayDraft? seed;
   final List<EssayDraft> saved = [];
 
   @override
   Future<void> save(EssayDraft draft) async => saved.add(draft);
 
   @override
-  Future<EssayDraft?> findById(String id) async => null;
+  Future<EssayDraft?> findById(String id) async =>
+      seed != null && seed!.id == id ? seed : null;
 
   @override
   Future<List<EssayDraft>> recent({int limit = 5}) async => const [];

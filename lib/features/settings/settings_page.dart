@@ -224,17 +224,9 @@ class _SettingsPageState extends State<SettingsPage> {
             behavior: HitTestBehavior.translucent,
             onTap: () => FocusScope.of(context).unfocus(),
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
               children: [
-                Text('写作环境', style: theme.textTheme.headlineMedium),
                 const SizedBox(height: 8),
-                Text(
-                  '让界面、密钥和默认偏好都待在你顺手的位置。',
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 24),
                 AppSurface(
                   color: scheme.surfaceContainer,
                   child: Column(
@@ -273,7 +265,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           color: scheme.onSurfaceVariant,
                         ),
                       ),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 16),
                       Text(
                         '显示模式',
                         style: theme.textTheme.labelLarge?.copyWith(
@@ -367,7 +359,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           );
                         },
                       ),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 16),
                       Text(
                         '默认体裁',
                         style: theme.textTheme.labelLarge?.copyWith(
@@ -410,7 +402,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('题目预设', style: theme.textTheme.titleMedium),
-                            const SizedBox(height: 2),
+                            const SizedBox(height: 4),
                             Text(
                               'AI 收藏与手动创建的题目在同一列表中管理',
                               style: theme.textTheme.bodySmall?.copyWith(
@@ -615,7 +607,7 @@ class _ConnectionResult extends StatelessWidget {
         : (semantics?.onCriticalContainer ?? scheme.onErrorContainer);
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: background,
         borderRadius: BorderRadius.circular(16),
@@ -638,7 +630,7 @@ class _ConnectionResult extends StatelessWidget {
                     color: foreground,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 4),
                 Text(
                   message,
                   style: theme.textTheme.bodySmall?.copyWith(color: foreground),

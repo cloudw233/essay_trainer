@@ -39,6 +39,22 @@ void main() {
     expect(selection.promptPresetId, 'preset-1');
   });
 
+  test('carries the suggested word count into the draft it starts', () {
+    final prompt = GeneratedPrompt.fromJson(
+      validJson(),
+      id: 'prompt-1',
+      language: EssayLanguage.chinese,
+      createdAt: now,
+    );
+
+    final draft = prompt.toSelection().toDraft(draftId: 'draft-1', now: now);
+
+    expect(draft.requiredWords, 800);
+    expect(draft.targetWords, 800);
+    expect(draft.title, prompt.title);
+    expect(draft.promptText, prompt.promptText);
+  });
+
   test('rejects an empty promptText', () {
     final json = validJson()..['promptText'] = '  ';
     expect(

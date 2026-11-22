@@ -1,4 +1,4 @@
-package com.example.essay_trainer
+package uk.cloudw233.essay_trainer
 
 import android.content.Intent
 import io.flutter.embedding.android.FlutterActivity

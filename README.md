@@ -205,7 +205,7 @@ CI 已经在 GitHub 托管 runner 上跑过（`quality` 和 `android-debug` 都�
 - 等待页是四个阶段文字、已等待时间和不定进度条，不是 token 流。批改请求固定 `stream: false`。
 - 客户端只校验返回结构，不判断评分是否合理。语文四维之和、英语各维满分都没有被强制；通过校验后模型给什么就显示什么，只保证总分不超过满分、字段非空且类型正确。
 - 英语各维 `maxScore` 由模型决定，不同报告之间可能不一致。
-- 发行版用独立发布密钥签名，但包名仍是 `com.example.essay_trainer`，不是商店标识；上架 Play 前需要换包名，那会让已安装用户变成另一个应用、需要重装。
+- 包名是 `uk.cloudw233.essay_trainer`；用旧包名 `com.example.essay_trainer` 安装的包会被 Android 视为另一个应用，不能覆盖升级。
 - 应用内真实 Key 的完整点击链路没在稳定设备上复验：模拟器没有 `/dev/kvm`，软件模拟下 `system_server` 持续 ANR。服务层 live check 已通过；系统分享 chooser 也缺现场截图。
 - 报告只能复制或分享文本摘要，不能导出 PDF、DOCX 或其他格式。
 

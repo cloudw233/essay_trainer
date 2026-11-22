@@ -108,6 +108,6 @@ gh workflow run nightly.yml
 ## 限制
 
 - 只发布 arm64-v8a，32 位设备和模拟器需要自行构建。
-- 包名仍是 `com.example.essay_trainer`，不是商店标识；更换包名会让已安装用户
+- 包名是 `uk.cloudw233.essay_trainer`；以后再改包名会让已安装用户
   变成另一个应用，需要重装。
 - 只有 APK，没有 AAB 和 Play Store 发布链路。

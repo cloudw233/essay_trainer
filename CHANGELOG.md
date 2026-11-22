@@ -7,6 +7,7 @@
 - 新增 CI、依赖更新、贡献与安全说明。
 - 项目采用 Mozilla Public License 2.0。
 - GitHub Release 提供正式签名的 arm64-v8a APK、SHA-256 校验和与签名证书指纹。
+- 包名改为 `uk.cloudw233.essay_trainer`；旧的 `com.example.essay_trainer` 包不再更新。
 
 ## 0.3.0 - 2026-11-22
 

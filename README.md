@@ -2,7 +2,7 @@
 
 文衡是 Android 写作训练应用，Flutter 3.35 / Dart 3.9 实现。用户写中英文作文，提交后由 DeepSeek 返回总分、维度分、逐句诊断、逐段诊断和一版升格文。草稿、报告、题目预设都存在本机 SQLite。
 
-没有后端，也没有账号。API Key 由用户自己填，应用直接请求 `api.deepseek.com`。这样不用部署服务端，也不用把 Key 交给代理；代价是没有账号、云同步和云端备份。只有测试连接、出题和批改会访问 DeepSeek。当前版本 `0.4.0+4`。
+没有后端，也没有账号。API Key 由用户自己填，应用直接请求 `api.deepseek.com`。这样不用部署服务端，也不用把 Key 交给代理；代价是没有账号、云同步和云端备份。只有测试连接、出题和批改会访问 DeepSeek。当前版本 `0.4.1+5`。
 
 ## 功能
 
@@ -24,7 +24,7 @@
 
 ```bash
 sha256sum -c SHA256SUMS
-apksigner verify --print-certs essay_trainer-0.4.0-arm64-v8a.apk
+apksigner verify --print-certs essay_trainer-0.4.1-arm64-v8a.apk
 ```
 
 签名证书 SHA-256 应为

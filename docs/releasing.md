@@ -87,7 +87,7 @@ Linux 上跑 SQLite 测试需要 `libsqlite3`；本仓库的 `.tooling/native/li
 
 ```bash
 sha256sum -c SHA256SUMS
-apksigner verify --print-certs essay_trainer-0.4.0-arm64-v8a.apk
+apksigner verify --print-certs essay_trainer-0.4.1-arm64-v8a.apk
 # Signer #1 certificate SHA-256 digest: bd30066f4f899289536cc73de68780a25a534447e646e6eac8686d9350072c1f
 ```
 

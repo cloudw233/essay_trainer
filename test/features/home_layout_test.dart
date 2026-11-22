@@ -2,6 +2,7 @@ import 'package:essay_trainer/core/database/draft_repository.dart';
 import 'package:essay_trainer/core/database/preset_repository.dart';
 import 'package:essay_trainer/core/database/settings_repository.dart';
 import 'package:essay_trainer/core/theme/app_theme.dart';
+import 'package:essay_trainer/core/theme/app_widgets.dart';
 import 'package:essay_trainer/features/home/home_page.dart';
 import 'package:essay_trainer/features/prompt_generation/prompt_generation_controller.dart';
 import 'package:essay_trainer/features/settings/api_key_controller.dart';
@@ -159,6 +160,36 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('写下第一篇'), findsOneWidget);
+  });
+
+  testWidgets('uses the existing app icon instead of the seal', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(420, 1000));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    final settings = _MemorySettingsRepository();
+    final defaults = WritingDefaultsController(settings: settings);
+    await defaults.load();
+    final keys = ApiKeyController(_MemoryKeyStore());
+    await keys.load();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.themeFor(AppTheme.fallbackScheme(Brightness.light)),
+        home: HomePage(
+          drafts: _DraftRepo(const []),
+          presets: _EmptyPresetRepository(),
+          apiKeys: keys,
+          writingDefaults: defaults,
+          promptGeneration: PromptGenerationController(
+            service: PromptGenerationService(),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(InkSeal), findsNothing);
+    expect(find.byType(AppMark), findsWidgets);
   });
 }
 

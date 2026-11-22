@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>文衡 · App Icon</title>
+<style>
+  :root {
+    --paper: #f6f1e7;
+    --ink: #243a2f;
+    --amber: #c96a24;
+    --night: #18231f;
+    --gold: #e9b45e;
+    --bg: #e8e1d4;
+    --muted: #5b665d;
+    --hairline: rgba(36, 58, 47, .16);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    width: 1400px;
+    padding: 56px 64px 44px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Noto Sans CJK SC", "Source Han Sans SC", "DejaVu Sans", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .wordmark { display: flex; align-items: baseline; gap: 16px; }
+  .wordmark strong { font-size: 24px; font-weight: 600; letter-spacing: .04em; }
+  .wordmark span {
+    font-family: "DejaVu Sans Mono", monospace;
+    font-size: 12px;
+    letter-spacing: .18em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .meta {
+    font-family: "DejaVu Sans Mono", monospace;
+    font-size: 12px;
+    letter-spacing: .14em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .hero {
+    display: grid;
+    grid-template-columns: 500px 1fr;
+    gap: 64px;
+    align-items: center;
+    padding: 56px 0 48px;
+  }
+  .hero-art {
+    width: 500px;
+    height: 500px;
+    display: grid;
+    place-items: center;
+  }
+  .hero-art img {
+    display: block;
+    width: 440px;
+    height: 440px;
+    filter: drop-shadow(0 22px 38px rgba(36, 58, 47, .14));
+  }
+  .copy { padding-right: 12px; }
+  .eyebrow {
+    font-family: "DejaVu Sans Mono", monospace;
+    font-size: 12px;
+    letter-spacing: .2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin: 0 0 20px;
+  }
+  h1 {
+    margin: 0 0 24px;
+    font-size: 42px;
+    line-height: 1.32;
+    font-weight: 500;
+    letter-spacing: .01em;
+  }
+  .lede {
+    margin: 0;
+    max-width: 620px;
+    font-size: 15.5px;
+    line-height: 1.9;
+    color: #47564c;
+  }
+  .lede b { color: var(--ink); font-weight: 600; }
+
+  .palette {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin-top: 32px;
+    border-top: 1px solid var(--hairline);
+    border-bottom: 1px solid var(--hairline);
+    padding: 16px 0;
+  }
+  .swatch {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 24px;
+    border-left: 1px solid var(--hairline);
+  }
+  .swatch:first-child { padding-left: 0; border-left: 0; }
+  .swatch i {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: block;
+    font-style: normal;
+  }
+  .swatch span { display: block; font-size: 13px; line-height: 1.5; color: var(--muted); }
+  .swatch b { display: block; font-family: "DejaVu Sans Mono", monospace; font-size: 12px; letter-spacing: .06em; color: var(--ink); font-weight: 400; }
+
+  .dark-band {
+    display: grid;
+    grid-template-columns: 192px 224px 1fr;
+    align-items: center;
+    gap: 44px;
+    background: var(--night);
+    color: var(--paper);
+    border-radius: 32px;
+    padding: 40px 44px;
+  }
+  .dark-band img { display: block; width: 192px; height: 192px; }
+  .mono-well {
+    width: 224px;
+    height: 224px;
+    border-radius: 28px;
+    background: var(--paper);
+    display: grid;
+    place-items: center;
+  }
+  .mono-well img { width: 192px; height: 192px; }
+  .dark-band h2 { margin: 0 0 12px; font-size: 24px; font-weight: 500; letter-spacing: .02em; }
+  .dark-band p { margin: 0; max-width: 540px; font-size: 15.5px; line-height: 1.8; color: #b9c3bb; }
+  .dark-band .tag {
+    display: inline-block;
+    margin-bottom: 16px;
+    font-family: "DejaVu Sans Mono", monospace;
+    font-size: 12px;
+    letter-spacing: .18em;
+    color: #8fa094;
+    text-transform: uppercase;
+  }
+
+  .sizes-panel {
+    margin-top: 28px;
+    display: flex;
+    align-items: flex-end;
+    gap: 32px;
+    background: var(--paper);
+    border-radius: 28px;
+    padding: 32px 40px 24px;
+  }
+  .size {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .size img { display: block; }
+  .size span {
+    font-family: "DejaVu Sans Mono", monospace;
+    font-size: 12px;
+    letter-spacing: .08em;
+    color: var(--muted);
+  }
+  .size-note {
+    margin-left: auto;
+    width: 330px;
+    padding-bottom: 4px;
+    font-size: 13px;
+    line-height: 1.75;
+    color: var(--muted);
+  }
+  .size-note b { color: var(--ink); font-weight: 600; }
+  .divider { width: 1px; align-self: stretch; background: var(--hairline); margin: 0 2px; }
+  .pixel { image-rendering: pixelated; }
+
+  footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 28px;
+    padding-top: 16px;
+    border-top: 1px solid var(--hairline);
+    font-family: "DejaVu Sans Mono", monospace;
+    font-size: 12px;
+    letter-spacing: .1em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wordmark">
+    <strong>文衡</strong>
+    <span>Essay Trainer / App Icon</span>
+  </div>
+  <div class="meta">2026.11 · v1.0</div>
+</header>
+
+<section class="hero">
+  <div class="hero-art">
+    <img src="icon.svg" alt="文衡 app icon">
+  </div>
+  <div class="copy">
+    <p class="eyebrow">Structure × one action</p>
+    <h1>三条稿纸线，<br>一个正在定位的光标。</h1>
+    <p class="lede">
+      以「文」的横向笔画为骨架。三条线不等长、向右错落，既像稿纸行线，也像编辑器的缩进；墨橙光标从右上插入，菱形头落在第一行——把 <b>AI 正在逐句批改</b> 收进一个动作里。结构保持安静，只有光标是暖的。
+    </p>
+    <div class="palette">
+      <div class="swatch"><i style="background:#F6F1E7;border:1px solid rgba(36,58,47,.18)"></i><span>纸<b>#F6F1E7</b></span></div>
+      <div class="swatch"><i style="background:#243A2F"></i><span>墨绿<b>#243A2F</b></span></div>
+      <div class="swatch"><i style="background:#C96A24"></i><span>动作橙<b>#C96A24</b></span></div>
+      <div class="swatch"><i style="background:#18231F"></i><span>夜墨<b>#18231F</b></span></div>
+      <div class="swatch"><i style="background:#E9B45E"></i><span>暗色光标<b>#E9B45E</b></span></div>
+    </div>
+  </div>
+</section>
+
+<section class="dark-band">
+  <img src="icon-dark.svg" alt="文衡 dark icon">
+  <div class="mono-well">
+    <img src="icon-monochrome.svg" alt="文衡 monochrome icon">
+  </div>
+  <div>
+    <span class="tag">Night + One-color</span>
+    <h2>暗色与单色，不另画一套。</h2>
+    <p>暗色只交换纸与墨，光标改用浅金；单色版把光标本身变成穿透行线的负空间，只留菱形头。去掉颜色后，动作还在。</p>
+  </div>
+</section>
+
+<section class="sizes-panel">
+  <div class="size"><img src="icon.svg" width="96" height="96" alt="96px"><span>96</span></div>
+  <div class="size"><img src="icon.svg" width="64" height="64" alt="64px"><span>64</span></div>
+  <div class="size"><img src="icon.svg" width="48" height="48" alt="48px"><span>48</span></div>
+  <div class="size"><img src="icon-compact.svg" width="32" height="32" alt="32px"><span>32</span></div>
+  <div class="size"><img src="icon-compact.svg" width="24" height="24" alt="24px"><span>24</span></div>
+  <div class="size"><img src="png/icon-16.png" width="16" height="16" alt="16px"><span>16</span></div>
+  <div class="divider"></div>
+  <div class="size"><img class="pixel" src="png/icon-16.png" width="128" height="128" alt="16px enlarged"><span>16px / 8×</span></div>
+  <div class="size-note">
+    <b>32 / 24px</b> 改用两条行线，释放行距；<b>16px</b> 重画在像素网格上，只留两线、一根 1px 光标和 2px 菱头，不靠缩放硬撑。
+  </div>
+</section>
+
+<footer>
+  <span>文衡 · essay_trainer</span>
+  <span>512px master · optical cuts 32 / 24 / 16 · flat, no gradients</span>
+</footer>
+
+</body>
+</html>

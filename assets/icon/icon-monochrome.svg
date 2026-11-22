@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">文衡 monochrome mark</title>
+  <desc id="desc">One-color version. The caret becomes a transparent slot through the rules, leaving a solid diamond at its head.</desc>
+  <defs>
+    <mask id="caret-slot">
+      <rect width="512" height="512" fill="#fff"/>
+      <rect x="302" y="155" width="20" height="265" rx="10" fill="#000"/>
+    </mask>
+  </defs>
+  <g fill="#243A2F" mask="url(#caret-slot)">
+    <rect x="146" y="170" width="230" height="38" rx="7"/>
+    <rect x="108" y="262" width="286" height="44" rx="8"/>
+    <rect x="160" y="358" width="214" height="38" rx="7"/>
+  </g>
+  <path d="M312 117 329 134 312 151 295 134Z" fill="#243A2F"/>
+</svg>

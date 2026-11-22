@@ -1,0 +1,8 @@
+{
+  "artifact": "assets/icon/preview.html",
+  "intentional": {
+    "large-radii": "The 28–32px panel radii and the 116/512 icon squircle follow 文衡's existing Material card language. This is a brand asset sheet, not a data-dense interface.",
+    "optical-insets": "1px rules and a few 2px optical adjustments around the monospace labels are intentional.",
+    "no-interaction-states": "This is a static icon specification sheet, not an interactive screen."
+  }
+}

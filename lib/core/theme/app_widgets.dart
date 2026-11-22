@@ -31,6 +31,90 @@ class AppSurface extends StatelessWidget {
   }
 }
 
+/// The project app mark, drawn from the compact icon geometry.
+///
+/// The icon assets exist under `assets/icon/`, but release builds on the
+/// current emulator did not composite bitmap images inside the large app bar.
+/// This vector version uses the same compact 32-unit geometry and brand
+/// colours, so the mark stays crisp at 34dp without image decoding.
+class AppMark extends StatelessWidget {
+  const AppMark({super.key, this.size = 34});
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return ExcludeSemantics(
+      child: CustomPaint(
+        size: Size.square(size),
+        painter: const _AppMarkPainter(),
+      ),
+    );
+  }
+}
+
+class _AppMarkPainter extends CustomPainter {
+  const _AppMarkPainter();
+
+  static const Color _paper = Color(0xFFF6F1E7);
+  static const Color _ink = Color(0xFF243A2F);
+  static const Color _amber = Color(0xFFC96A24);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final scale = size.width / 32.0;
+    final paper = Paint()
+      ..color = _paper
+      ..isAntiAlias = true;
+    final ink = Paint()
+      ..color = _ink
+      ..isAntiAlias = true;
+    final amber = Paint()
+      ..color = _amber
+      ..isAntiAlias = true;
+
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(0, 0, 32 * scale, 32 * scale),
+        Radius.circular(7.2 * scale),
+      ),
+      paper,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(6.8 * scale, 10.1 * scale, 15.6 * scale, 3.2 * scale),
+        Radius.circular(0.7 * scale),
+      ),
+      ink,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(8.2 * scale, 19.2 * scale, 15 * scale, 3.2 * scale),
+        Radius.circular(0.7 * scale),
+      ),
+      ink,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(18.8 * scale, 5.9 * scale, 2.8 * scale, 20 * scale),
+        Radius.circular(1.4 * scale),
+      ),
+      amber,
+    );
+
+    final diamond = Path()
+      ..moveTo(20.2 * scale, 3.7 * scale)
+      ..lineTo(23.1 * scale, 6.8 * scale)
+      ..lineTo(20.2 * scale, 9.9 * scale)
+      ..lineTo(17.3 * scale, 6.8 * scale)
+      ..close();
+    canvas.drawPath(diamond, amber);
+  }
+
+  @override
+  bool shouldRepaint(covariant _AppMarkPainter oldDelegate) => false;
+}
+
 /// A tiny seal-like mark used next to the product name.
 class InkSeal extends StatelessWidget {
   const InkSeal({super.key, this.size = 44, this.character = '衡'});

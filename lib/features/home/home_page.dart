@@ -166,7 +166,7 @@ class _HomePageState extends State<HomePage> {
               title: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const InkSeal(size: 34, character: '衡'),
+                  const AppMark(size: 34),
                   const SizedBox(width: 12),
                   Flexible(
                     child: Text(

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" role="img" aria-labelledby="title desc">
+  <title id="title">文衡 16px icon</title>
+  <desc id="desc">Pixel-grid cut for 16px: two manuscript rules and a one-pixel amber caret with a two-pixel head.</desc>
+  <rect width="16" height="16" rx="3.5" fill="#F6F1E7"/>
+  <g fill="#243A2F">
+    <rect x="3" y="5" width="7" height="2"/>
+    <rect x="4" y="10" width="8" height="2"/>
+  </g>
+  <g fill="#C96A24">
+    <rect x="8" y="1" width="2" height="2"/>
+    <rect x="9" y="3" width="1" height="11"/>
+  </g>
+</svg>

@@ -111,12 +111,24 @@
 
 ---
 
+## 后续：主页左上角换成应用图标
+
+- 旧：`InkSeal(size: 34, character: '衡')`。
+- 新：`AppMark(size: 34)`，按项目 `assets/icon/icon-compact.svg` 的 32-unit 小尺寸切法绘制。
+- 位置：`lib/core/theme/app_widgets.dart`（`AppMark` / `_AppMarkPainter`）、`lib/features/home/home_page.dart:169`。
+- 说明：当前模拟器的 release 构建里 `Image.asset` 不合成位图（用红色块验证过布局本身正常），因此没有直接加载 PNG，而是用项目图标的 compact 几何重建为矢量；颜色使用图标原色（纸 `#F6F1E7`、墨绿 `#243A2F`、动作橙 `#C96A24`），34dp 下保持清晰。
+- 测试：`home_layout_test.dart` 断言不再出现 `InkSeal`，且 AppBar 使用 `AppMark`。
+
+![主页应用图标](screenshots/ui-audit/home_app_mark.png)
+
+---
+
 ## 文件 diff 摘要
 
 - `lib/core/theme/app_widgets.dart`
-  - `AppSurface` 默认 padding 16；`StatusPill` 垂直 padding 8；新增 `AppLoadingState`。
+  - `AppSurface` 默认 padding 16；`StatusPill` 垂直 padding 8；新增 `AppLoadingState`；新增 `AppMark` 矢量应用标记。
 - `lib/features/home/home_page.dart`
-  - 内容区 16；列表卡 padding 16、间距 12；空草稿 CTA；加载占位。
+  - 内容区 16；列表卡 padding 16、间距 12；空草稿 CTA；加载占位；左上角 `InkSeal` 换成 `AppMark`。
 - `lib/features/history/history_page.dart`
   - 去大标题；16dp；删除确认；下拉刷新；空态 CTA；加载占位；卡片 padding 16、间距 12。
 - `lib/features/presets/preset_library_page.dart`
@@ -143,7 +155,7 @@
 
 ## 验证
 
-- `flutter test --no-pub` → **72 项全部通过**。
+- `flutter test --no-pub` → **79 项全部通过**。
 - `flutter analyze` → **No issues found**。
 - `flutter build apk --release --target-platform android-x64 --no-pub` → 构建成功。
 - 安装到 API 36.1 模拟器，按 720×1600 @ 320 dpi 采集了首页、历史、设置、预设、报告、删除确认截图。

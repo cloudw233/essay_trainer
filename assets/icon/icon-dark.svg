@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">文衡 app icon, dark</title>
+  <desc id="desc">The manuscript-rule mark inverted for dark surfaces: paper-colored rules and a light-gold caret on deep ink.</desc>
+  <rect width="512" height="512" rx="116" fill="#18231F"/>
+  <g fill="#F6F1E7">
+    <rect x="146" y="170" width="230" height="38" rx="7"/>
+    <rect x="108" y="262" width="286" height="44" rx="8"/>
+    <rect x="160" y="358" width="214" height="38" rx="7"/>
+  </g>
+  <g fill="#E9B45E">
+    <rect x="304" y="150" width="16" height="260" rx="8"/>
+    <rect x="300" y="122" width="24" height="20" rx="2" transform="rotate(45 312 132)"/>
+  </g>
+</svg>

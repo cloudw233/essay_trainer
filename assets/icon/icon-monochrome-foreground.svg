@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Monochrome adaptive foreground. Same 0.84 safe-circle scale as the color
+       foreground. The caret is transparent, so Android tints the solid alpha
+       mask while the slot stays open. -->
+  <defs>
+    <mask id="caret-slot">
+      <rect width="512" height="512" fill="#fff"/>
+      <rect x="302" y="155" width="20" height="265" rx="10" fill="#000"/>
+    </mask>
+  </defs>
+  <g transform="translate(256 256) scale(0.84) translate(-256 -256)">
+    <g fill="#000" mask="url(#caret-slot)">
+      <rect x="146" y="170" width="230" height="38" rx="7"/>
+      <rect x="108" y="262" width="286" height="44" rx="8"/>
+      <rect x="160" y="358" width="214" height="38" rx="7"/>
+    </g>
+    <path d="M312 117 329 134 312 151 295 134Z" fill="#000"/>
+  </g>
+</svg>

@@ -1,0 +1,24 @@
+{
+  "summary": "Flutter essay-writing app with a three-tab shell, editor, prompt-generation sheet, grading/report pages, and local SQLite persistence. This phase changes only layout structure and keyboard/inset handling.",
+  "areas": [
+    {"path": "lib/features/home", "purpose": "Writing desk: hero CTA, defaults, API-key notice, recent drafts.", "dependencies": ["lib/core/theme", "lib/features/prompt_generation"], "tests": ["flutter test test/features/home_layout_test.dart"], "coverage": "Source and running screenshots inspected; new layout tests to be added."},
+    {"path": "lib/features/editor", "purpose": "Focused writing surface with title/body fields and bottom action bar.", "dependencies": ["lib/core/theme", "lib/features/settings"], "tests": ["test/features/editor_submit_test.dart", "flutter test test/features/editor_layout_test.dart"], "coverage": "Keyboard inset behavior reproduced on emulator; compact keyboard toolbar to be added."},
+    {"path": "lib/features/prompt_generation", "purpose": "AI prompt setup sheet, loading, candidate cards, and error/manual fallback.", "dependencies": ["lib/core/theme", "lib/features/settings", "lib/core/database"], "tests": ["test/features/prompt_generation_sheet_test.dart", "flutter test test/features/prompt_sheet_layout_test.dart"], "coverage": "Setup and keyboard states reproduced; footer/keyboard handling to be changed."},
+    {"path": "lib/features/settings", "purpose": "Theme, writing defaults, preset entry, DeepSeek key storage and connection test.", "dependencies": ["lib/core/theme", "lib/core/database"], "tests": ["test/settings/settings_page_test.dart"], "coverage": "Save/test action hierarchy to be changed; existing tests read."},
+    {"path": "lib/features/history", "purpose": "Report list with swipe delete and empty/error states.", "dependencies": ["lib/core/theme", "lib/core/database"], "tests": ["test/features/history_page_test.dart"], "coverage": "Read-only this phase; no planned edit."},
+    {"path": "lib/features/report", "purpose": "Score, dimensions, sentence/paragraph feedback, revised essay, share/copy.", "dependencies": ["lib/core/theme", "lib/services"], "tests": ["test/features/report_page_test.dart"], "coverage": "Read-only this phase; no planned edit."},
+    {"path": "lib/features/presets", "purpose": "Prompt preset library and manual preset sheet.", "dependencies": ["lib/core/theme", "lib/core/database"], "tests": [], "coverage": "Read-only this phase; no planned edit."},
+    {"path": "lib/features/grading", "purpose": "Grading request progress and error/retry states.", "dependencies": ["lib/services", "lib/core/theme"], "tests": ["test/features/grading_flow_test.dart"], "coverage": "Read-only this phase; no planned edit."},
+    {"path": "lib/features/shell", "purpose": "Persistent three-destination NavigationBar shell.", "dependencies": ["lib/core/theme"], "tests": [], "coverage": "Read-only this phase."},
+    {"path": "lib/core/theme", "purpose": "Material You theme, semantic colors, shared surfaces, spacing defaults.", "dependencies": [], "tests": ["test/theme/app_theme_test.dart"], "coverage": "Theme layer must not change; only consumed."},
+    {"path": "test", "purpose": "Widget/unit tests including fake repositories for editor, settings, history, report, and grading flows.", "dependencies": ["lib"], "tests": ["flutter test --no-pub"], "coverage": "Existing patterns inspected; new layout tests to be added."}
+  ],
+  "facts": [
+    {"claim": "Editor actions are mounted in Scaffold.bottomNavigationBar without viewInsets handling.", "evidence": "lib/features/editor/editor_page.dart"},
+    {"claim": "Prompt-generation sheet uses a fixed 92% screen height and a scroll ListView for the setup form.", "evidence": "lib/features/prompt_generation/prompt_generation_sheet.dart"},
+    {"claim": "Home order is hero, writing settings, API-key notice, then recent drafts.", "evidence": "lib/features/home/home_page.dart"},
+    {"claim": "Settings renders test-connection as filled and save-key as outlined.", "evidence": "lib/features/settings/settings_page.dart"},
+    {"claim": "Widget tests implement concrete repository classes with in-memory fakes.", "evidence": "test/features/history_page_test.dart"}
+  ],
+  "unknowns": ["True AI candidate/grading runtime states require a DeepSeek key and were not captured."]
+}

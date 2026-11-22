@@ -1,0 +1,126 @@
+{
+  "summary": "Flutter Android writing trainer with local SQLite, DeepSeek prompt generation/grading, and a report/history UI. Phase 3 adds Chinese rubric anchors and native system sharing.",
+  "areas": [
+    {
+      "path": "lib/core/prompts",
+      "purpose": "Grading prompts and prompt builder; Chinese rubric anchors are added here.",
+      "dependencies": [
+        "lib/models/enums.dart"
+      ],
+      "tests": [
+        "test/core/prompt_builder_test.dart"
+      ],
+      "coverage": "Chinese and English prompt text inspected; live Chinese model behavior not yet measured."
+    },
+    {
+      "path": "lib/services",
+      "purpose": "Grading transport/validation, report summary, and system share channel.",
+      "dependencies": [
+        "lib/models/grading_report.dart",
+        "lib/core/prompts"
+      ],
+      "tests": [
+        "test/services/grading_service_test.dart",
+        "test/services/system_share_test.dart"
+      ],
+      "coverage": "Grading service read; Android share behavior unverified without a device."
+    },
+    {
+      "path": "lib/core/utils",
+      "purpose": "Report summary builder; pure Dart, shared by copy/share.",
+      "dependencies": [
+        "lib/models"
+      ],
+      "tests": [
+        "test/core/report_summary_test.dart"
+      ],
+      "coverage": "Pure summary formatting inspected and widget-tested; real chooser not exercised."
+    },
+    {
+      "path": "lib/features/report",
+      "purpose": "Report rendering, clipboard summary, and system share action.",
+      "dependencies": [
+        "lib/services",
+        "lib/models"
+      ],
+      "tests": [
+        "test/features/report_page_test.dart",
+        "test/features/grading_flow_test.dart"
+      ],
+      "coverage": "Widget structure inspected; real share chooser not exercised."
+    },
+    {
+      "path": "android/app/src/main/kotlin/com/example/essay_trainer",
+      "purpose": "Android host activity; hosts the text share MethodChannel.",
+      "dependencies": [
+        "Flutter embedding"
+      ],
+      "tests": [
+        "flutter build apk --release --target-platform android-x64"
+      ],
+      "coverage": "Plain FlutterActivity inspected; channel not yet implemented."
+    },
+    {
+      "path": "test",
+      "purpose": "Model, prompt, service, and report widget tests.",
+      "tests": [
+        "flutter test --no-pub"
+      ],
+      "coverage": "60 tests pass; Phase 3 prompt, summary, share, and report action covered."
+    },
+    {
+      "path": ".github",
+      "purpose": "GitHub Actions CI, Dependabot, and pull-request template.",
+      "dependencies": [
+        "pubspec.yaml",
+        "android/gradle/wrapper/gradle-wrapper.properties"
+      ],
+      "tests": [
+        "PyYAML parse; local equivalent commands in docs/repo-automation.md"
+      ],
+      "coverage": "YAML parsed locally; GitHub-hosted execution not run."
+    }
+  ],
+  "facts": [
+    {
+      "claim": "Chinese defaults to a 50-point report while English defaults to 25.",
+      "evidence": "lib/models/enums.dart"
+    },
+    {
+      "claim": "The Chinese grading prompt now defines 20/15/10/5 maxima, score anchors, and a no-renaming rule.",
+      "evidence": "lib/core/prompts/grading_prompts.dart"
+    },
+    {
+      "claim": "Report summary is built by a pure function and used by both clipboard copy and system share.",
+      "evidence": "lib/features/report/report_page.dart"
+    },
+    {
+      "claim": "MainActivity implements the essay_trainer/share MethodChannel using ACTION_SEND.",
+      "evidence": "android/app/src/main/kotlin/com/example/essay_trainer/MainActivity.kt"
+    },
+    {
+      "claim": "The Chinese live check returned 41/50 with exactly the four anchored dimensions.",
+      "evidence": "docs/phase3-report.md"
+    },
+    {
+      "claim": "CI runs formatting, analyzer, and 60 tests on Ubuntu, and builds an arm64 debug APK on non-PR runs.",
+      "evidence": ".github/workflows/ci.yml"
+    },
+    {
+      "claim": "Secret/signing files, .tooling, .jspace, build and dist artifacts are ignored; docs screenshots and pubspec.lock remain tracked.",
+      "evidence": ".gitignore"
+    },
+    {
+      "claim": "Local arm64 debug build succeeded with a writable Android home and official Flutter storage; the checkout's Tencent mirror lacks debug Maven artifacts.",
+      "evidence": "docs/repo-automation.md"
+    },
+    {
+      "claim": "The project is licensed under the official Mozilla Public License 2.0 text.",
+      "evidence": "LICENSE"
+    }
+  ],
+  "unknowns": [
+    "The workflow has not run on a GitHub-hosted runner yet.",
+    "Android share chooser and real-key in-app flows still lack device verification."
+  ]
+}

@@ -1,9 +1,10 @@
 # 发布签名发行版
 
-发行版由 GitHub Actions 在 `v*.*.*` tag 上构建并签名，产物是 arm64-v8a 的
-release APK 和一份 `SHA256SUMS`，通过 GitHub Release 发布。
+正式版在本机构建、签名并发布：APK 用发布密钥签名，由 `tool/release.sh` 调用本机
+`gh` 创建 GitHub Release。GitHub Actions 不持有发布密钥，也不创建 Release；它只
+构建每天一次的 nightly 测试包（debug 签名，见 `.github/workflows/nightly.yml`）。
 
-## 签名材料
+## 签名材料（只在本机）
 
 | 项目 | 位置 / 值 |
 | --- | --- |
@@ -22,69 +23,65 @@ keyAlias=essay
 storeFile=essay-release.jks
 ```
 
-GitHub Actions 用这 4 个 repository secret：
-
-- `ANDROID_KEYSTORE_BASE64`：`base64 -w0 android/app/essay-release.jks` 的结果
-- `ANDROID_KEYSTORE_PASSWORD`
-- `ANDROID_KEY_ALIAS`
-- `ANDROID_KEY_PASSWORD`
-
 **必须备份**：把 `android/app/essay-release.jks` 和 `android/key.properties` 存进
-密码管理器。Android 只允许同一包名用同一签名升级；密钥丢失后已经安装的用户
-无法再收到更新，只能换一个 `applicationId` 重新发一个新应用。GitHub secret 只能
-覆盖写入，不能读回，别把它当唯一备份。
+密码管理器。Android 只允许同一包名用同一签名升级；密钥丢失后已经安装的用户无法
+再收到更新，只能换一个 `applicationId` 重新发一个新应用。
 
-**换密钥**：如果密钥泄露或丢失，删除 `android/` 下的 keystore 和 `key.properties`，
-换新的 alias 重新生成，更新 4 个 secret 和 `release.yml` 里的
-`EXPECTED_CERT_SHA256`，并同时更换 `applicationId` —— 旧包名已经无法用新密钥更新。
+不要把 keystore 或密码放进 GitHub secrets、issue、日志或任何远端。真实设备上的
+覆盖安装才需要这个密钥，CI 构建的包一律 debug 签名。
+
+**换密钥**：密钥泄露或丢失时，删除 `android/` 下的 keystore 和 `key.properties`，
+重新生成，更新 `tool/release.sh` 里的 `EXPECTED_CERT_SHA256` 和本文的指纹，并同时
+更换 `applicationId` —— 旧包名已经无法用新密钥更新。
 
 ## 发版步骤
 
-1. 改 `pubspec.yaml` 的 `version`（例如 `0.4.1+5`），在 `CHANGELOG.md` 加同版本
-   的 `## 0.4.1 - YYYY-MM-DD` 段落。
-2. 本地过一遍 `dart format --output=none --set-exit-if-changed lib test tool`、
-   `flutter analyze --no-pub`、`flutter test --no-pub`。
-3. 提交并推送 `master`。
-4. 打 tag 并推送：
+1. 改 `pubspec.yaml` 的 `version`（例如 `0.4.1+5`），在 `CHANGELOG.md` 加同版本的
+   `## 0.4.1 - YYYY-MM-DD` 段落。
+2. 提交并推送 `master`。
+3. 打 tag 并推送：
 
    ```bash
    git tag -a v0.4.1 -m "文衡 0.4.1"
    git push origin v0.4.1
    ```
 
-5. `Release` workflow 会依次：
+4. 在本机发布：
 
-   - 校验 tag 版本和 `pubspec.yaml` 一致、`CHANGELOG.md` 有对应段落；
-   - 跑格式检查、`flutter analyze`、`flutter test`；
-   - 从 secret 还原 keystore，构建 `flutter build apk --release --target-platform android-arm64`；
-   - 用 `apksigner` 验签，要求 v2 方案通过且证书 SHA-256 等于
-     `EXPECTED_CERT_SHA256`，否则中止（防止 secret 缺失时静默发出 debug 签名的包）；
-   - 生成 `essay_trainer-<version>-arm64-v8a.apk` 和 `SHA256SUMS`；
-   - 用 `gh release create` 建 Release，标题 `文衡 <version>`，说明取 CHANGELOG
-     对应段落，附安装步骤、APK 哈希和证书指纹。
+   ```bash
+   tool/release.sh
+   ```
 
-6. 确认：
+   脚本依次检查 `android/key.properties` 和 keystore 存在、工作区干净、`HEAD` 正好
+   在 `v<version>` tag 上、CHANGELOG 有对应段落；然后跑格式检查、`flutter analyze`、
+   `flutter test`，构建 arm64 release APK，用 `apksigner` 验签（要求 v2 通过且证书
+   SHA-256 等于 `EXPECTED_CERT_SHA256`）、确认 APK 只有 arm64-v8a，生成
+   `dist/essay_trainer-<version>-arm64-v8a.apk` 和 `dist/SHA256SUMS`，最后用本机
+   `gh release create` 创建 Release（说明取 CHANGELOG 段落，附哈希和证书指纹）。
+
+5. 确认：
 
    ```bash
    gh release view v0.4.1
-   gh run list --workflow Release
    ```
 
-重跑失败的发布：先 `gh release delete v0.4.1 --yes`（如果 Release 已建），再
-`gh workflow run release.yml -f tag=v0.4.1`。不要复用同一个 tag 指到新提交。
-
-## 本地构建签名 APK
-
-本机需要 `android/key.properties`：
+只构建不发布：
 
 ```bash
-flutter pub get
-flutter build apk --release --target-platform android-arm64
-# build/app/outputs/flutter-apk/app-release.apk
+tool/release.sh --no-publish
 ```
 
-没有 `android/key.properties` 时 release 构建回退到 debug 签名，方便
-`flutter run --release` 调试；这种包不能发布。
+重发同一个版本：先 `gh release delete v0.4.1 --yes`，再跑脚本。不要拿同一个 tag
+指向新提交后复用旧 Release。
+
+## 本机环境
+
+- Flutter 3.35.6、JDK 17、Android SDK 36、NDK 27.0.12077973
+- `ANDROID_HOME`（或 `ANDROID_SDK_ROOT`）指向 SDK
+- `android/key.properties` 和 keystore 就位
+
+Linux 上跑 SQLite 测试需要 `libsqlite3`；本仓库的 `.tooling/native/libsqlite3.so`
+软链存在时脚本会自动加进 `LD_LIBRARY_PATH`。
 
 ## 用户怎么校验
 
@@ -97,9 +94,20 @@ apksigner verify --print-certs essay_trainer-0.4.0-arm64-v8a.apk
 `apksigner` 在 Android SDK 的 `build-tools/<version>/` 下。证书指纹以 Release 说明里
 的值为准。
 
+## Nightly
+
+`.github/workflows/nightly.yml` 每天 03:00（Asia/Shanghai）和手动触发时构建
+arm64-v8a 的 debug APK，命名 `essay_trainer-nightly-<日期>-<commit>-arm64-v8a.apk`，
+带 `SHA256SUMS`，作为 Actions artifact 保留 14 天。它不读取任何签名密钥，不创建
+Release。手动触发：
+
+```bash
+gh workflow run nightly.yml
+```
+
 ## 限制
 
-- 只构建 arm64-v8a，32 位设备和模拟器需要自行构建。
+- 只发布 arm64-v8a，32 位设备和模拟器需要自行构建。
 - 包名仍是 `com.example.essay_trainer`，不是商店标识；更换包名会让已安装用户
   变成另一个应用，需要重装。
-- Release 目前只提供 APK，没有 AAB 和 Play Store 发布链路。
+- 只有 APK，没有 AAB 和 Play Store 发布链路。

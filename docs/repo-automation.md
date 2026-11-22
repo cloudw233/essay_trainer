@@ -33,21 +33,19 @@
   - 上传 `app-debug.apk` artifact，保留 7 天。
 - 权限仅 `contents: read`；不使用 API Key，不运行 `tool/live_*`。
 
-## 发布工作流
+## Nightly 与本地发布
 
-`.github/workflows/release.yml`：
+`.github/workflows/nightly.yml`：
 
-- 触发：push `v*.*.*` tag，或手动 `workflow_dispatch` 指定已存在的 tag。
-- 校验 tag 版本与 `pubspec.yaml` 一致、`CHANGELOG.md` 有对应段落。
-- 先跑与 CI 相同的格式、analyze、test 检查。
-- 从 repository secrets（`ANDROID_KEYSTORE_BASE64`、`ANDROID_KEYSTORE_PASSWORD`、
-  `ANDROID_KEY_ALIAS`、`ANDROID_KEY_PASSWORD`）还原发布密钥，构建 arm64 release APK。
-- `apksigner` 验签，要求 APK Signature Scheme v2 通过且证书 SHA-256 等于工作流里
-  的 `EXPECTED_CERT_SHA256`；不匹配直接失败。
-- 产物：`essay_trainer-<version>-arm64-v8a.apk`、`SHA256SUMS`；用 `gh release create`
-  创建 Release，说明取 CHANGELOG 对应段落。
-- 权限 `contents: write` 只给发布 job。密钥备份与发版步骤见
-  [releasing.md](releasing.md)。
+- 触发：每天 03:00（Asia/Shanghai，cron `0 19 * * *` UTC）和手动 `workflow_dispatch`。
+- 构建 arm64 debug APK，命名 `essay_trainer-nightly-<日期>-<commit>-arm64-v8a.apk`，
+  带 `SHA256SUMS`，作为 artifact 保留 14 天。
+- 不读取发布密钥，不创建 Release，权限仅 `contents: read`。
+
+正式版在本机发布（`tool/release.sh`）：校验工作区干净、`HEAD` 在 tag 上、CHANGELOG 有
+对应段落，跑格式/analyze/test，用本地 keystore 构建并验签（v2 + 证书 SHA-256），生成
+`SHA256SUMS`，用本机 `gh` 创建 Release。发布密钥只存在本机，仓库不保存任何签名
+secret。步骤见 [releasing.md](releasing.md)。
 
 ## 本地验证
 

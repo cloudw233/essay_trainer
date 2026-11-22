@@ -187,11 +187,12 @@ CI 在 `.github/workflows/ci.yml`：
 - `android-debug`：非 PR 时安装 NDK 27，把 Gradle 镜像换成官方地址，构建 `android-arm64` debug APK，上传 artifact，保留 7 天
 - 不需要 DeepSeek Key
 
-发布走 `.github/workflows/release.yml`：推送 `v*.*.*` tag 后校验 tag 与 `pubspec.yaml`
-版本、跑同一套质量检查、用仓库 secret 里的发布密钥构建 arm64 release APK、`apksigner`
-验签、生成 `SHA256SUMS` 并创建 GitHub Release。细节见 [发布签名发行版](docs/releasing.md)。
+发布不在 Actions 里：正式版由 `tool/release.sh` 在本机用发布密钥签名、验签并调用本机
+`gh` 创建 GitHub Release。`.github/workflows/nightly.yml` 只负责每天 03:00
+（Asia/Shanghai）构建 debug 签名的 nightly APK 并上传 artifact，不接触发布密钥，也不
+创建 Release。细节见 [发布签名发行版](docs/releasing.md)。
 
-这套 workflow 还没有在 GitHub 托管 runner 上实际跑过。提交前检查见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+CI 已经在 GitHub 托管 runner 上跑过（`quality` 和 `android-debug` 都通过）。提交前检查见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 阶段报告和模块说明在 `docs/`：[第一阶段报告](docs/phase1-report.md)、[第二阶段报告](docs/phase2-report.md)、[第三阶段报告](docs/phase3-report.md)、[AI 命题模块](docs/ai_prompt_module.md)、[仓库自动化](docs/repo-automation.md)。
 
